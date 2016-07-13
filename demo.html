@@ -7,7 +7,7 @@
 		<title>reveal.js – The HTML Presentation Framework</title>
 
 		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Hakim El Hattab">
+		<meta name="author" content="Alexandre Bonnasseau">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -41,20 +41,122 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Reveal.js</h1>
-					<h3>The HTML Presentation Framework</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
-					</p>
+					<h1>Maturity of teams working on data</h1>
+                    <h3>The way towards continuous processing</h3>
 				</section>
 
 				<section>
-					<h2>Hello There</h2>
-					<p>
-						reveal.js enables you to create beautiful interactive slide decks using HTML. This presentation will show you examples of what it can do.
-					</p>
+					<ul>
+					<h2>Agenda</h2>
+                        <li>Everyone in the team must have a good workstation</li>
+                        <li>Use version control</li>
+                        <li>Script the whole workflow from scratch</li>
+                        <li>Tests should be automatic too</li>
+                        <li>Don't update data, augment it !</li>
+                        <li>Use a build system for your data</li>
+                        <li>Head to continuous processing...</li>
+					</ul>
+				</section>
+				<section>
+					[PHOTO : garage reparation camion] dans [PHOTO atelier répartation moto]
 				</section>
 
+				<section>
+					<h2>Everyone in the team must have a good workstation</h2>
+					<ul>
+						<li>a good internet connection</li>
+						<li>a lot of RAM and (fast) disk</li>
+						<li>a scriptable command line</li>
+						<li>... for every team member, even testers !</li>
+					</ul>
+				</section>
+                
+				<section>
+					<h2>Use version control</h2>
+					<ul>
+						<li>eg : git</li>
+						<li>even for a hackathon !</li>
+						<li>commit your doc</li>
+					</ul>
+				</section>
+                
+				<section>
+					<h2>Script the whole workflow from scratch</h2>
+					<ul>
+                    3 ways to re-run what have failed :
+						<li>comment the sources - <span class="fragment highlight-red">DON'T !</span></li>
+						<li>reset everything before you start - painful</li>
+						<li>run each step under condition</li>
+					</ul>
+				</section>
+                
+				<section>
+                    <h3>How many city per departement ?</h3>
+                    <pre><code class="hljs" data-trim contenteditable>
+.mode tabs
+.import comsimp2015.txt city
+.import depts2015.txt departement
+CREATE INDEX idx_city on city (DEP, COM);
+CREATE INDEX idx_dept on city (DEP);
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+                    </code></pre>
+
+				</section>
+
+                
+				<section>
+					<h2>Tests should be automatic too</h2>
+					<ul>
+						<li>test existence</li>
+						<li>test quantities</li>
+						<li>test integration</li>
+						<li>be creative !</li>
+					</ul>
+				</section>
+                
+				<section>
+					<h2>Don't update data, augment it !</h2>
+					<ul>
+						<li>example with files and SQL</li>
+						<li>how much disk is worth an hour of your time ?</li>
+					</ul>
+                    <p>It's worth duplicating some data if you get rollback</p>
+				</section>
+                
+
+				<section>
+					<h2>Use a build system for your data</h2>
+					<ul>
+						<li>collaboration gets automatic</li>
+						<li>eg : make, drake or tuttle</li>
+						<li>focus on tuttle</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Continuous processing is like refill</h2>
+					<ul>
+						<li>update the data as soon as a team member commits a change in code</li>
+						<li>update the data when source data changes</li>
+						<li>tools like Jenkins</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Conclusion : Improve continuously</h2>
+                    <h3></h3>
+					<ul>
+						<li>software engineering is a good source of inspiration...</li>
+						<li>... like agile methods</li>
+						<li>retrospectives helps your team find your its ways of improvement</li>
+					</ul>
+				</section>
+                
 				<!-- Example of nested vertical slides -->
 				<section>
 					<section>
