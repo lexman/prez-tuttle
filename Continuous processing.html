@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Continuous processing</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Alexandre Bonnasseau">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Maturity of teams working on data</h1>
+                    <h3>The way towards continuous processing</h3>
+				</section>
+
+				<section>
+                    <img src="img/pyramid.jpg"/>
+				</section>
+                
+				<section>
+					<ul>
+					<h2>Agenda</h2>
+                        <li>Everyone in the team must have a good workstation</li>
+                        <li>Use version control</li>
+                        <li>Script the whole workflow from scratch</li>
+                        <li>Tests should be automatic too</li>
+                        <li>Don't update data, augment it !</li>
+                        <li>Use a build system for your data</li>
+                        <li>Continuous processing is like refill</li>
+					</ul>
+				</section>
+
+                <section>
+                    <section>
+                        <h2>Everyone in the team must have a good workstation</h2>
+                        <ul>
+                            <li>a good internet connection</li>
+                            <li>a lot of RAM and (fast) disk</li>
+                            <li>a scriptable command line</li>
+                            <li>... for every team member, even testers !</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3>Would you repair this ?</h3>
+                        <img src="img/truck_small.jpg" align="middle"/> 
+                    </section>
+                    <section>
+                        <h3>in here ?</h3>
+                        <img src="img/repair_motorbike.jpg"/>
+                    </section>
+				</section>
+
+                
+				<section>
+					<h2>Use version control</h2>
+					<ul>
+						<li>eg : git</li>
+						<li>even for a hackathon !</li>
+						<li>commit your doc</li>
+					</ul>
+				</section>
+                
+				<section>
+                    <section>
+                        <h2>Script the whole workflow from scratch</h2>
+                        <h3>How many city per departement ?</h3>
+                        <pre><code class="hljs" data-trim>
+.mode tabs
+.import comsimp2015.txt city
+.import depts2015.txt departement
+CREATE INDEX idx_city on city (DEP, COM);
+CREATE INDEX idx_dept on departement (DEP);
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR AS DEP_NAME, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+                        </code></pre>
+                    </section>
+                    
+                    <section>
+                        <h3>How many city per departement ?</h3>
+                        <p>What will happen if there is an error in the second index ?
+                        <pre><code class="hljs" data-trim>
+set -e
+wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/depts2015.txt
+wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/comsimp2015.zip
+unzip comsimp2015.zip
+
+sqlite3 cities.sqlite <<$script$
+.headers ON
+.mode tabs
+.import comsimp2015.txt city
+.import depts2015.txt departement
+CREATE INDEX idx_city on city (DEP, COM);
+CREATE INDEX idx_dept on city (DEP); --     <-- error here
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR AS DEP_NAME, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+$script$
+                        </code></pre>
+
+                    </section>
+
+                    <section>
+                        <h3>How to deal with errors ?</h3>
+                        <ul>
+                        3 ways to re-run what have failed :
+                            <li>Comment the sources</li>
+                            <li>Reset everything before you start</li>
+                            <li>Run each step under condition</li>
+                        </ul>
+                    </section>
+
+
+                    <section>
+                        <h3>Comment the part that have already run <span class="fragment current-visible"> - <span style="color: #ff2c2d;">DON'T !</span></span></h3>
+                        <pre><code class="hljs" data-trim>
+                                        
+set -e
+# wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/depts2015.txt
+# wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/comsimp2015.zip
+# unzip comsimp2015.zip
+
+sqlite3 cities.sqlite <<$script$
+.headers ON
+.mode tabs
+-- .import comsimp2015.txt city
+-- .import depts2015.txt departement
+-- CREATE INDEX idx_city on city (DEP, COM);
+CREATE INDEX idx_dept on departement (DEP);
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR AS DEP_NAME, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+$script$
+                        </code></pre>
+                    </section>
+
+                    
+                    <section>
+                        <h3>Reset everything before you start <span class="fragment current-visible"> - Painfull</span></h3>
+                        <pre><code class="hljs" data-trim>               
+rm cities.sqlite
+rm depts2015.txt
+rm comsimp2015.zip
+
+set -e
+wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/depts2015.txt
+wget http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/comsimp2015.zip
+unzip comsimp2015.zip
+
+sqlite3 cities.sqlite <<$script$
+.headers ON
+.mode tabs
+.import comsimp2015.txt city
+.import depts2015.txt departement
+CREATE INDEX idx_city on city (DEP, COM);
+CREATE INDEX idx_dept on departement (DEP);
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR AS DEP_NAME, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+$script$
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Conditional execution</span></h3>
+                        <pre><code class="hljs" data-trim>               
+set -e
+
+if [ ! -e depts2015.txt ]; then
+    curl -O "http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/depts2015.txt"
+fi
+if [ ! -f comsimp2015.zip ]; then
+    curl -O "http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2015/txt/comsimp2015.zip"
+fi
+if [ ! -f comsimp2015.txt ]; then
+    unzip comsimp2015.zip
+fi
+
+if ! echo "SELECT * FROM city LIMIT 0;" | sqlite3 cities.sqlite 2> /dev/null ; then 
+    sqlite3 cities.sqlite <<$script$
+.mode tabs
+.import comsimp2015.txt city
+CREATE INDEX idx_city on city (DEP, COM);
+$script$
+fi
+
+if ! echo "SELECT * FROM departement LIMIT 0;" | sqlite3 cities.sqlite 2> /dev/null ; then 
+    sqlite3 cities.sqlite <<$script$
+.mode tabs
+.import depts2015.txt departement
+CREATE INDEX idx_dept on departement (DEP);
+$script$
+fi
+
+if [ ! -f result.csv ]; then
+    sqlite3 cities.sqlite <<$script$
+.headers ON
+.mode csv
+.output result.csv
+SELECT departement.DEP, departement.NCCENR AS DEP_NAME, COUNT(*) 
+    FROM departement
+    JOIN city ON city.DEP = departement.DEP
+    GROUP BY departement.DEP, departement.NCCENR;
+$script$
+fi
+                        </code></pre>
+                        <p><span class="fragment current-visible">Forces to structure the code around chunks of data</span></p>
+                    </section>
+                    
+                    
+                </section>
+
+
+				<section>
+                    <section>
+                        <h2>Tests should be automatic too</h2>
+                        <ul>
+                            <li>test existence</li>
+                            <li>test quantities</li>
+                            <li>test integration</li>
+                            <li>be creative !</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Example : test quantities (and existance)</span></h3>
+                        <pre><code class="hljs" data-trim>               
+if ! echo "SELECT * FROM departement LIMIT 0;" | sqlite3 cities.sqlite 2> /dev/null ; then 
+    sqlite3 cities.sqlite <<$script$
+.mode tabs
+.import depts2015.txt departement
+CREATE INDEX idx_dept on departement (DEP);
+$script$
+
+    NB_DEPS=`echo "SELECT  COUNT(*) FROM departement;" | sqlite3 cities.sqlite`
+    if [ $NB_DEPS -lt 100 ] ; then 
+        echo "More than 100 departement expected but $NB_DEPS found" 
+        exit 1
+    fi
+fi
+                        </code></pre>
+                    </section>
+
+                </section>
+                
+				<section>
+                    <section>
+                        <h2>Don't update data, augment it !</h2>
+                        <ul>
+                            <li>Example with files and SQL</li>
+                            <li>How much disk is worth an hour of your time ?</li>
+                        </ul>
+                        <p>It's worth duplicating some data if you get rollback</p>
+                    </section>
+                    <section>
+                        <h3>Example : INSEE code for each city</h3>
+                        <span class="fragment current-visible">
+                        <pre><code class="hljs"> 
+ALTER TABLE city ADD COLUMN INSEE;
+UPDATE city SET INSEE = DEP || COM;
+                        </code></pre>
+                        </span>
+                        <span class="fragment">
+                        <pre><code class="hljs" data-trim> 
+CREATE TABLE city_insee AS
+    SELECT *, DEP || COM AS INSEE FROM city;
+                        </code></pre>
+                        </span>
+                        <span class="fragment">
+                        You can optimize size with views if needed
+                        </span>
+                    </section>
+
+                    <section>
+                        <h3>How much space is worth your time ?</h3>
+                        <span class="fragment">
+                        <P>A developer cost at least 200 € a day</p>
+                        </span>
+                        <span class="fragment">
+                        <p>A 240 GB SSD costs 60 €</p>
+                        </span>
+                        <span class="fragment">
+                        <p><span style="color: #ff2c2d;">1h <==> 100 GB !</span></p>
+                        </span>
+                        <span class="fragment">
+                        <p>You can spend a lot of space to same time... Don't hesitate to duplicate data if you trade it with rollback !</p>
+                        </span>                        
+                    </section>
+                    
+                </section>                
+
+				<section>
+					<h2>Use a build system for your data</h2>
+					<ul>
+						<li>collaboration gets automatic</li>
+						<li>eg : <a href="http://zmjones.com/make/">make</a>, <a href="https://github.com/Factual/drake">Drake</a>, <a href="https://github.com/lexman/ex-continuous-processing">ex-continuous-processing</a> or <a href="https://github.com/lexman/tuttle">tuttle</a></li>
+						<li>focus on tuttle</li>
+					</ul>
+				</section>
+
+				<section>
+                    <section>
+                        <h2>Continuous processing</h2>
+                        <ul>
+                            <li>Update the data as soon as a team member commits a change in code</li>
+                            <li>Update the data when source data changes</li>
+                            <li>Can be operated by tools like Jenkins</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>It's is like your phone battery !</h2>
+                        <ul>
+                            <li>The normal state is when every process is complete</li>
+                            <li>Reprocess what have changed as soon as you can</li>
+                            <li>You should never have to reprocess all... Unless there is a major issue</li>
+                            <li>It will have an impact on how you structure your project</li>
+                        </ul>
+                    </section>
+				</section>
+
+				<section>
+					<h2>Conclusion : Improve continuously</h2>
+                    <h3></h3>
+					<ul>
+						<li>software engineering is a good source of inspiration...</li>
+						<li>... like agile methods</li>
+						<li>retrospectives helps your team find your its ways of improvement</li>
+					</ul>
+				</section>
+
+				<section>
+                    <img src="img/pyramid.jpg"/>
+				</section>
+                
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

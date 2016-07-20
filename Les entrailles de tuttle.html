@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Les entrailles de tuttle</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Alexandre Bonnasseau">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Les entrailles de tuttle</h1>
+                    <img src="img/entrailles.png"/>
+				</section>
+
+				<section>
+					<ul>
+					<h2>Plan</h2>
+                        <li>Astuces d'utilisateur</li>
+                        <li>Etendre tuttle</li>
+                        <li>Futurs développements</li>
+					</ul>
+				</section>
+
+                <section>
+                    <section>
+                        <h2>Astuces d'utilisateur</h2>
+                    <p>Pour aller plus loin que la <a href="https://github.com/lexman/tuttle/tree/master/doc">doc</a>...</p>
+                        <ul>
+                            <li>Le .tuttle</li>
+                            <li>Les logs</li>
+                            <li>Le code</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3>Le .tuttle</h3>
+                        <ul>
+                            <li>Pas de serveur !</li>
+                            <li>Le rapport montre les erreurs</li>
+                            <li>Les resources présentes indiquent l'état de l'exécution</li>
+                            <li>Le .tuttle se copie (par exemple depuis un serveur de build)</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3>Les logs</h3>
+                        <ul>
+                            <li>Accessible depuis le rapport</li>
+                            <li>Pour chaque donnée produite, les logs en rapport sont accessibles indéfiniement</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3>Le code</h3>
+                        <ul>
+                            <li>Tout code exécuté est disponible sous forme de fichier</li>
+                            <li>Les numéros de ligne d'erreur, c'est pas encore ça...</li>
+                            <li>Avec tuttle c'est sans engagement !</li>
+                        </ul>
+                    </section>
+				</section>
+
+                
+				<section>
+                    <section>
+                        <h2>Etendre tuttle</h2>
+                        <p>Pour l'instant dans le core</p>
+                        <ul>
+                            <li>Ajouter une resource</li>
+                            <li>Ajouter un processeur</li>
+                            <li>Le plus compliqué...</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Ajouter une resource</h2>
+                        <ul>
+                            <li><a href="https://github.com/lexman/tuttle/tree/master/tuttle/extensions/net.py">exemple</a></li>
+                            <li>Implementer la méthode <code>exists()</code></li>
+                            <li>Implementer la méthode <code>signature()</code></li>
+                            <li>Implementer la méthode <code>remove()</code></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Ajouter un processeur</h2>
+                        <ul>
+                            <li><a href="https://github.com/lexman/tuttle/tree/master/tuttle/extensions/net.py">exemple</a></li>
+                            <li>Implementer la méthode <code> run(self, process, reserved_path, log_stdout, log_stderr) </code></li>
+                            <li>Implementer la méthode <code> static_check(self, process)</code></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Etendre tuttle</h2>
+                        <p>Le plus compliqué c'est de tester...</p>
+                        <p>... En particulier l'intégration</p>
+                    </section>
+                </section>
+                
+				<section>
+                    <section>
+                        <h2>Furtur développements</h2>
+                        <ul>
+                            <li>Un système de configuration</li>
+                            <li>Découvrir des dépendences à l'exécution</li>
+                            <li>Tout plein d'affinages</li>
+                            <li>Un système d'authentification</li>
+                            <li>Des processeurs et des resources à la pelle</li>
+                            <li>Parallèliser les éxécutions de process</li>
+                            <li>Aider une éxécution en cours</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h3>Un système de configuration</h3>
+                        <ul>
+                            <li>Définir des constantes</li>
+                            <li>S'appuyer sur les variables d'environement</li>
+                            <li>Certains process ou ressources dépendent de constantes</li>
+                            <li>Utiliser les constantes dans les process</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Découvrir des dépendences à l'exécution</h3>
+                        <ul>
+                            <li>Pour utiliser certaines constantes</li>
+                            <li>Pour les imports de sources en langage dynamique (python)</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Tout plein d'affinages</h3>
+                        <ul>
+                            <li>Des processeurs pour transférer des données d'une resource à l'autre</li>
+                            <li>Un processeur "auto" qui comprenne les moulinages de marmotte</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Un système d'authentification</h3>
+                        <ul>
+                            <li>Pour écrire / lire des resources protégées</li>
+                            <li>Un fichier de correspondance :<br/> <code>regexp d'url, user, password</code></li>
+                            <li>Distinct du tuttlefile</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h3>Processeurs et resources à la pelle</h3>
+                        <ul>
+                            <li>java</li>
+                            <li>javascript</li>
+                            <li>mongodb</li>
+                            <li>ftp, sftp, ssh</li>
+                            <li>hdfs</li>
+                        </ul>
+                    </section>
+                                        
+                    <section>
+                        <h3>Packaging</h3>
+                        <ul>
+                            <li>Intégration Debian</li>
+                            <li>RPM</li>
+                            <li>graphviz => [...]</li>
+                            <li>sqlite => console dans le processeur</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h3>Parallèliser les éxécutions de process</h3>
+                        <ul>
+                            <li>Moins intéressant que de te tout enchaîner</li>
+                            <li>Eventuellement...</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Aider une éxécution en cours</h3>
+                        <ul>
+                            <li>Idéalement : <code class="hljs" data-trim>tuttle worker -j 2 -p x:\mon_projet\.tuttle </code></li>
+                            <li>Pour ajouter du calcul à une éxécution en cours</li>
+                            <li>Pour proposer de l'aide à une éxécution sur une autre machine</li>
+                            <li>Pour lancer des process sur Windows, Linux, McOS...</li>
+                            <li>... C'est pas gagné !</li>
+                        </ul>
+                    </section>
+                </section>
+                
+                <section>
+                    <h2>Conclusion</h2>
+                    <ul>
+                        <li>Peu cher à adopter</li>
+                        <li>Encore moins cher à abandonner</li>
+                        <li>Des solutions à trouver pour les updates de données existants</li>
+                        <li>Il reste des développements pour améliorer l'outil</li>
+                        <li>Mais la méthode tuttle facilite déjà le travail</li>
+                    </ul>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
